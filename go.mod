@@ -1,4 +1,4 @@
-module github.com/ainiaa/go-redission
+module github.com/ainiaa/go-redisson
 
 go 1.15
 

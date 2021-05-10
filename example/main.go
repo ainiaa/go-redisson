@@ -7,8 +7,8 @@ import (
 	"github.com/ainiaa/bytesconv"
 	jsoniter "github.com/json-iterator/go"
 
-	"github.com/ainiaa/go-redission"
-	"github.com/ainiaa/go-redission/conf"
+	"github.com/ainiaa/go-redisson"
+	"github.com/ainiaa/go-redisson/conf"
 )
 
 func main() {

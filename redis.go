@@ -9,7 +9,7 @@ import (
 	"github.com/ainiaa/catutil/v2/rediscat"
 	gredis "github.com/go-redis/redis/v8"
 
-	"github.com/ainiaa/go-redission/conf"
+	"github.com/ainiaa/go-redisson/conf"
 )
 
 var redisCluster = &Redis{}
