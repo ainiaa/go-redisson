@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -32,10 +31,10 @@ func New(ctx context.Context, c *conf.Config) (*Redis, error) {
 		return newClusterClient(ctx, c)
 	case ConnTypeAlone:
 		return newAloneClient(ctx, c)
-	case ConnTypeSentinel: // todo
+	case ConnTypeSentinel:
 		return newSentinel(ctx, c)
 	default:
-		panic("unknown connection type")
+		return nil, ErrConnTypeUnknown
 	}
 }
 
@@ -63,7 +62,7 @@ func newClusterClient(ctx context.Context, c *conf.Config) (*Redis, error) {
 	})
 	pong, err := client.Ping(ctx).Result()
 	if pong != "PONG" || err != nil {
-		return nil, fmt.Errorf("cluster redis conn error: %s", err)
+		return nil, ErrPing.SubError(err)
 	}
 	client.AddHook(rediscat.RedisTraceHook{})
 	return &Redis{UniversalClient: client, Config: c}, nil
@@ -91,7 +90,7 @@ func newAloneClient(ctx context.Context, c *conf.Config) (*Redis, error) {
 	})
 	pong, err := client.Ping(ctx).Result()
 	if pong != "PONG" || err != nil {
-		return nil, fmt.Errorf("alone redis conn error: %s", err)
+		return nil, ErrPing.SubError(err)
 	}
 	client.AddHook(rediscat.RedisTraceHook{})
 	return &Redis{UniversalClient: client, Config: c}, nil
@@ -118,7 +117,7 @@ func newSentinel(ctx context.Context, c *conf.Config) (*Redis, error) {
 	})
 	pong, err := client.Ping(ctx).Result()
 	if pong != "PONG" || err != nil {
-		return nil, fmt.Errorf("sentinel redis conn error: %s", err)
+		return nil, ErrPing.SubError(err)
 	}
 	client.AddHook(rediscat.RedisTraceHook{})
 	return &Redis{UniversalClient: client, Config: c}, nil

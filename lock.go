@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	gredis "github.com/go-redis/redis/v8"
@@ -17,9 +16,6 @@ const (
 )
 
 var (
-	ExitsLockErr           = errors.New("lock exits")
-	AcquiredLockErr        = errors.New("acquire lock error")
-	AcquiredLockTimeoutErr = errors.New("acquire lock timeout error")
 	lockScripter           *gredis.Script
 	unlockScripter         *gredis.Script
 	renewScripter          *gredis.Script
@@ -43,14 +39,14 @@ func (r *Redis) doLock(ctx context.Context, args []string, lockTime int64, ident
 	res = result.(string)
 
 	if res == "-1" { // 若已存在,直接返回
-		return "", ExitsLockErr
+		return "", ErrExitsLock
 	}
 
 	if res == "OK" { //获取锁成功
 		return identifier, nil
 	}
 
-	return "", AcquiredLockErr
+	return "", ErrAcquiredLock
 }
 
 /**
@@ -106,7 +102,7 @@ func (r *Redis) LockWithId(ctx context.Context, lockName string, identifier stri
 	for {
 		select {
 		case <-timer: //超时
-			return "", AcquiredLockTimeoutErr
+			return "", ErrAcquiredLockTimeout
 		case <-ticker.C: //执行时间执行一次
 			_, err := r.doLock(ctx, args, lockTime, identifier)
 			if err == nil {
